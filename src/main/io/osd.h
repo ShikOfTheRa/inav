@@ -151,6 +151,7 @@ typedef enum {
     OSD_RC_SOURCE,
     OSD_VTX_POWER,
     OSD_ESC_RPM,
+    OSD_ADSB,
     OSD_ITEM_COUNT // MUST BE LAST
 } osd_items_e;
 

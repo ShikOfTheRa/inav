@@ -14,15 +14,32 @@
  * You should have received a copy of the GNU General Public License
  * along with Cleanflight.  If not, see <http://www.gnu.org/licenses/>.
  */
+ 
 
-#pragma once
 
-void initMAVLinkTelemetry(void);
-void handleMAVLinkTelemetry(timeUs_t currentTimeUs);
-void checkMAVLinkTelemetryState(void);
+#include <stdint.h>
 
-void freeMAVLinkTelemetryPort(void);
-void configureMAVLinkTelemetryPort(void);
 
-extern void adsbNewVehicle(uint32_t avicao, int32_t avlat, int32_t avlon, int32_t avalt);
+typedef struct adsbVehicle_s{
+  uint32_t icao;
+  int32_t  alt;
+  uint16_t cog;
+  uint16_t dir;
+  uint32_t dist;     
+  uint8_t  ttl; 
+} adsbVehicle_t;
+
+PG_DECLARE(adsbVehicle_t, adsbVehicle);
+
+
+
+
+
+
+
+
+
+
+
+
 

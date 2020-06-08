@@ -71,6 +71,7 @@
 #include "telemetry/mavlink.h"
 #include "telemetry/telemetry.h"
 
+
 // mavlink library uses unnames unions that's causes GCC to complain if -Wpedantic is used
 // until this is resolved in mavlink library - ignore -Wpedantic for mavlink code
 #pragma GCC diagnostic push
@@ -706,6 +707,18 @@ static bool handleIncoming_MISSION_REQUEST(void)
     return false;
 }
 
+static bool handleIncoming_ADSB_VEHICLE(void)
+{
+    mavlink_adsb_vehicle_t msg;
+    mavlink_msg_adsb_vehicle_decode(&mavRecvMsg, &msg);
+
+//    if (msg.ICAO_address == mavSystemId) {
+//        adsbNewVehicle(msg.ICAO_address,msg.lat,msg.lon,msg.altitude);  
+        adsbNewVehicle(0,0,0,0);  
+//    } 
+    return true;
+}
+
 static bool processMAVLinkIncomingTelemetry(void)
 {
     while (serialRxBytesWaiting(mavlinkPort) > 0) {
@@ -726,6 +739,8 @@ static bool processMAVLinkIncomingTelemetry(void)
                     return handleIncoming_MISSION_REQUEST_LIST();
                 case MAVLINK_MSG_ID_MISSION_REQUEST:
                     return handleIncoming_MISSION_REQUEST();
+                case MAVLINK_MSG_ID_ADSB_VEHICLE:
+                    return handleIncoming_ADSB_VEHICLE();                
                 default:
                     return false;
             }

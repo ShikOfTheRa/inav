@@ -1196,6 +1196,16 @@ static void osdFormatPidControllerOutput(char *buff, const char *label, const pi
     buff[24] = '\0';
 }
 
+static void osdDisplayADSB(elemPosX, elemPosY){
+  //adsb.dist,adsb.alt,adsb.dir
+    char buff[6];
+    elemAttr = TEXT_ATTRIBUTES_NONE;
+    buff[0] = SYM_VOLT;
+    buff[1] = '\0';
+    displayWriteWithAttr(osdDisplayPort, elemPosX, elemPosY, buff, elemAttr);  
+}
+
+
 static void osdDisplayBatteryVoltage(uint8_t elemPosX, uint8_t elemPosY, uint16_t voltage, uint8_t digits, uint8_t decimals)
 {
     char buff[6];
@@ -1523,11 +1533,19 @@ static bool osdDrawSingleElement(uint8_t item)
         }
     case OSD_RADAR:
         {
-            static uint16_t drawn = 0;
-            static uint32_t scale = 0;
-            osdDrawRadar(&drawn, &scale);
+            buff[0] = SYM_HDP_L;
+            buff[1] = SYM_HDP_R;
+            int32_t centiHDOP = 100 * gpsSol.hdop / HDOP_SCALE;
+            osdFormatCentiNumber(&buff[2], centiHDOP, 0, 1, 0, 2);
+            break;
+        }
+    case OSD_ADSB:
+        {
+        osdDisplayADSB(elemPosX, elemPosY);
             return true;
         }
+
+        }        
 #endif // GPS
 
     case OSD_ALTITUDE:
