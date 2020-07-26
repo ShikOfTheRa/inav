@@ -49,7 +49,6 @@
 
 #include "navigation/navigation.h"
 #include "navigation/navigation_private.h"
-
 #include "rx/rx.h"
 
 #include "sensors/sensors.h"
@@ -3349,7 +3348,7 @@ int32_t getCruiseHeadingAdjustment(void) {
 static float GPS_scaleLonDown;
 static float GPS_totalTravelDistance = 0;
 
-static void GPS_distance_cm_bearing(int32_t currentLat1, int32_t currentLon1, int32_t destinationLat2, int32_t destinationLon2, uint32_t *dist, int32_t *bearing)
+void GPS_distance_cm_bearing(int32_t currentLat1, int32_t currentLon1, int32_t destinationLat2, int32_t destinationLon2, uint32_t *dist, int32_t *bearing)
 {
     const float dLat = destinationLat2 - currentLat1; // difference of latitude in 1/10 000 000 degrees
     const float dLon = (float)(destinationLon2 - currentLon1) * GPS_scaleLonDown;

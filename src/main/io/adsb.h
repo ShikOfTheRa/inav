@@ -14,11 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with Cleanflight.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
 
 
 #include <stdint.h>
-
 
 typedef struct adsbVehicle_s{
   uint32_t icao;
@@ -29,10 +27,9 @@ typedef struct adsbVehicle_s{
   uint8_t  ttl; 
 } adsbVehicle_t;
 
-PG_DECLARE(adsbVehicle_t, adsbVehicle);
-
-
-
+extern void adsbNewVehicle(uint32_t avicao, int32_t avlat, int32_t avlon, int32_t avalt);
+extern void adsbupdate(void);
+extern adsbVehicle_t adsb;
 
 
 

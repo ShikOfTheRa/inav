@@ -52,6 +52,7 @@
 #include "flight/pid.h"
 #include "flight/servos.h"
 
+#include "io/adsb.h"
 #include "io/gps.h"
 #include "io/ledstrip.h"
 #include "io/serial.h"
@@ -711,11 +712,8 @@ static bool handleIncoming_ADSB_VEHICLE(void)
 {
     mavlink_adsb_vehicle_t msg;
     mavlink_msg_adsb_vehicle_decode(&mavRecvMsg, &msg);
+    adsbNewVehicle(msg.ICAO_address,msg.lat,msg.lon,msg.altitude);  
 
-//    if (msg.ICAO_address == mavSystemId) {
-//        adsbNewVehicle(msg.ICAO_address,msg.lat,msg.lon,msg.altitude);  
-        adsbNewVehicle(0,0,0,0);  
-//    } 
     return true;
 }
 
@@ -726,6 +724,7 @@ static bool processMAVLinkIncomingTelemetry(void)
         char c = serialRead(mavlinkPort);
         uint8_t result = mavlink_parse_char(0, c, &mavRecvMsg, &mavRecvStatus);
         if (result == MAVLINK_FRAMING_OK) {
+                debug[0]++;
             switch (mavRecvMsg.msgid) {
                 case MAVLINK_MSG_ID_HEARTBEAT:
                     break;
@@ -740,7 +739,7 @@ static bool processMAVLinkIncomingTelemetry(void)
                 case MAVLINK_MSG_ID_MISSION_REQUEST:
                     return handleIncoming_MISSION_REQUEST();
                 case MAVLINK_MSG_ID_ADSB_VEHICLE:
-                    return handleIncoming_ADSB_VEHICLE();                
+                    return handleIncoming_ADSB_VEHICLE();                              
                 default:
                     return false;
             }

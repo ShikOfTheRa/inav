@@ -37,8 +37,6 @@ extern int16_t              GPS_directionToHome;       // direction to home poin
 
 extern bool autoThrottleManuallyIncreased;
 
-
-
 /* Navigation system updates */
 void onNewGPSData(void);
 
@@ -518,4 +516,5 @@ extern int16_t navAccNEU[3];
 
 #endif
 
-extern void GPS_distance_cm_bearing(int32_t currentLat1, int32_t currentLon1, int32_t destinationLat2, int32_t destinationLon2, uint32_t *dist, int32_t *bearing);
+
+

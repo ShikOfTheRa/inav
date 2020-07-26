@@ -24,5 +24,5 @@ void checkMAVLinkTelemetryState(void);
 void freeMAVLinkTelemetryPort(void);
 void configureMAVLinkTelemetryPort(void);
 
-extern void adsbNewVehicle(uint32_t avicao, int32_t avlat, int32_t avlon, int32_t avalt);
+
 

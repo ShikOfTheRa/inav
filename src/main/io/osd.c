@@ -62,6 +62,7 @@
 #include "drivers/time.h"
 #include "drivers/vtx_common.h"
 
+#include "io/adsb.h"
 #include "io/flashfs.h"
 #include "io/gps.h"
 #include "io/osd.h"
@@ -1196,15 +1197,21 @@ static void osdFormatPidControllerOutput(char *buff, const char *label, const pi
     buff[24] = '\0';
 }
 
-static void osdDisplayADSB(elemPosX, elemPosY){
-  //adsb.dist,adsb.alt,adsb.dir
-    char buff[6];
-    elemAttr = TEXT_ATTRIBUTES_NONE;
-    buff[0] = SYM_VOLT;
-    buff[1] = '\0';
+static void osdDisplayADSB(uint8_t elemPosX, uint8_t elemPosY){
+    char buff[15]; // Max TBD
+    uint8_t len;
+    textAttributes_t elemAttr = TEXT_ATTRIBUTES_NONE;
+    buff[0]=0x2A;
+    osdFormatDistanceStr(buff+1, adsb.dist*100);
+    len = strlen(buff);
+
+    int dir = osdGetHeadingAngle(adsb.dir + 11);
+    unsigned arrowOffset = dir * 2 / 45;
+    buff[len]=SYM_ARROW_UP + arrowOffset;
+    osdFormatDistanceStr(buff+len+1, adsb.alt*100);
+
     displayWriteWithAttr(osdDisplayPort, elemPosX, elemPosY, buff, elemAttr);  
 }
-
 
 static void osdDisplayBatteryVoltage(uint8_t elemPosX, uint8_t elemPosY, uint16_t voltage, uint8_t digits, uint8_t decimals)
 {
@@ -1531,6 +1538,11 @@ static bool osdDrawSingleElement(uint8_t item)
             osdDrawHomeMap(CENTIDEGREES_TO_DEGREES(navigationGetHomeHeading()), 'T', &drawn, &scale);
             return true;
         }
+    case OSD_ADSB:
+        {
+            osdDisplayADSB(elemPosX, elemPosY);
+            return true;
+        }
     case OSD_RADAR:
         {
             buff[0] = SYM_HDP_L;
@@ -1539,13 +1551,7 @@ static bool osdDrawSingleElement(uint8_t item)
             osdFormatCentiNumber(&buff[2], centiHDOP, 0, 1, 0, 2);
             break;
         }
-    case OSD_ADSB:
-        {
-        osdDisplayADSB(elemPosX, elemPosY);
-            return true;
-        }
-
-        }        
+        
 #endif // GPS
 
     case OSD_ALTITUDE:

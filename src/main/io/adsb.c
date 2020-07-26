@@ -18,34 +18,71 @@
 
 #include "io/adsb.h"
 #include "navigation/navigation.h"
+#include "common/maths.h"
+#include "math.h"
+#include "build/debug.h"
 
 
+adsbVehicle_t adsb;
+
+
+
+void GPS_distance_cm_bearing(int32_t currentLat1, int32_t currentLon1, int32_t destinationLat2, int32_t destinationLon2, uint32_t *dist, int32_t *bearing)
+{
+    #define DISTANCE_BETWEEN_TWO_LONGITUDE_POINTS_AT_EQUATOR    1.113195f  // MagicEarthNumber from APM
+
+    float GPS_scaleLonDown = cos_approx((fabsf((float)gpsSol.llh.lat) / 10000000.0f) * 0.0174532925f);
+
+    const float dLat = destinationLat2 - currentLat1; // difference of latitude in 1/10 000 000 degrees
+    const float dLon = (float)(destinationLon2 - currentLon1) * GPS_scaleLonDown;
+
+    *dist = sqrtf(sq(dLat) + sq(dLon)) * DISTANCE_BETWEEN_TWO_LONGITUDE_POINTS_AT_EQUATOR;
+
+    *bearing = 9000.0f + RADIANS_TO_CENTIDEGREES(atan2_approx(-dLat, dLon));      // Convert the output radians to 100xdeg
+
+    if (*bearing < 0)
+        *bearing += 36000;
+}
 
 void adsbNewVehicle(uint32_t avicao, int32_t avlat, int32_t avlon, int32_t avalt)
 {
-   k
+     debug[0]++;
       uint32_t avdist; int32_t avdir; uint8_t avupdate = 1; 
       GPS_distance_cm_bearing(gpsSol.llh.lat, gpsSol.llh.lon, avlat, avlon, &avdist, &avdir); 
-      avdist /= 100; avdir /= 100;
-      
-      if (avdist > adsbVehicle.dist){
+      avdist /= 100; avdir /= 100; avalt /= 1000;
+  
+      if (avdist > adsb.dist){
         avupdate = 0;
       }   
-      if (adsbVehicle.ttl <= 1){
+      if (adsb.ttl <= 1){
         avupdate = 1;
       }    
-      if (avicao == adsbVehicle.icao){
+      if (avicao == adsb.icao){
         avupdate = 1;
       }      
-      if (avdist > 20000){ // limit display to aircraft < 20K
+      if (avdist > 100000){ // limit display to aircraft < 100K
         avupdate = 0;
       }  
       if (avupdate == 1){
-        adsbVehicle.icao = avicao;
-        adsbVehicle.dist = avdist;       
-        adsbVehicle.alt = avalt; 
-        adsbVehicle.dir = avdir; 
-        adsbVehicle.ttl = 10;    // 10 secs default timeout    
+        adsb.icao = avicao;
+        adsb.dist = avdist;       
+        adsb.alt = avalt; 
+        adsb.dir = avdir; 
+        adsb.ttl = 10;    // 10 secs default timeout    
        }
+};
+
+void adsbupdate(void)
+{
+  debug[1]++;
+  if (adsb.ttl>=1){
+    adsb.ttl--;
+  }
+  else{
+    adsb.icao = 0;
+    adsb.dist = 0;       
+    adsb.alt  = 0; 
+    adsb.dir  = 0;     
+  }
 };
 
